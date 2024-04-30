@@ -1,0 +1,5 @@
+/.metadata/
+build/*
+.idea
+.DS_Store
+util
