@@ -10,8 +10,8 @@ import { Link } from 'react-router-dom';
 
 ////////////////컴포넌트///////////////////
 //로그인 페이지 해더  회원가입/로그인
-function LoginHeader({setisChange}) {
-    
+function LoginHeader({ setisChange }) {
+
     return (
         <header>
             <div className='LoginHeader'>
@@ -36,7 +36,7 @@ function LoginHeader({setisChange}) {
     );
 }
 //로그인 페이지 메인 
-function LoginMain(isChange) {
+function LoginMain({ isChange }) {
     if (isChange) {
         return (
             <main>
@@ -80,7 +80,7 @@ function LoginMain(isChange) {
                         <input type="text" placeholder={"Email"} id='email' autoComplete="username" />
                         <input type="password" placeholder={"비밀번호 6자리 이상입력"} id='pass' autoComplete="new-password" />
                     </div>
-                    <button type='submit' className='origin__btn' >로그인</button>
+                    <button type='submit' className='origin__btn' style={{marginTop :'20px'}}>로그인</button>
                 </form>
             </main>
         );
@@ -89,7 +89,7 @@ function LoginMain(isChange) {
 
 
 //로그인 페이지 푸터    소셜로그인 
-function LoginFooter(isChange) {
+function LoginFooter({ isChange }) {
     if (isChange) {
         return (
             <footer>
@@ -147,9 +147,9 @@ function Login() {
 
     return (
         <div className="Login">
-            <LoginHeader setisChange={setisChange}/>
-            <LoginMain isChange={isChange}/>
-            <LoginFooter isChange={isChange}/>
+            <LoginHeader setisChange={setisChange} />
+            <LoginMain isChange={isChange} />
+            <LoginFooter isChange={isChange} />
 
             <ul className="bg-bubbles">
                 <li></li>
@@ -162,6 +162,7 @@ function Login() {
                 <li></li>
                 <li></li>
                 <li></li>
+                
             </ul>
         </div>
     );
