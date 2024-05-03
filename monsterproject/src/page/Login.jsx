@@ -2,12 +2,30 @@ import './Login.css'
 import { FcGoogle } from "react-icons/fc";
 import { SiNaver } from "react-icons/si";
 import { HiMiniChatBubbleOvalLeft } from "react-icons/hi2";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 
 //////////////////js//////////////////////
+const initState = {
+    email: '',
+    passowrd: '',
+    dueDate: "",
+    Lboolean: false
+}
+const socialState = {
+    response_type: '',
+    client_id: '',
+    redirect_uri: '',
+    scope: '',
 
+
+
+    autorization_uri: '',
+    token_uri: '',
+    user_info_uri: '',
+    user_name_attribute: ''
+}
 ////////////////컴포넌트///////////////////
 //로그인 페이지 해더  회원가입/로그인
 function LoginHeader({ setisChange }) {
@@ -40,11 +58,12 @@ function LoginMain({ isChange }) {
     if (isChange) {
         return (
             <main>
-                <form style={{ width: '100%' }}>
+                <form action='/login' method='post' style={{ width: '100%' }}>
                     <div className="LoginMainBody">
                         <input type="text" placeholder={"Email"} id='email' autoComplete="username" />
-                        <input type="password" placeholder={"비밀번호 6자리 이상입력"} id='pass' autoComplete="new-password" />
-                        <input type="password" placeholder={"재확인 비밀번호 6자리 이상입력"} id='pass2' autoComplete="new-password" />
+                        <input type="text" placeholder="사용자 이름" id="username" />
+                        <input type="password" placeholder="비밀번호 6자리 이상입력" id='pass' autoComplete="new-password" />
+                        <input type="password" placeholder="재확인 비밀번호 6자리 이상입력" id='pass2' autoComplete="new-password" />
                         <select id='date__yy'>
                             <option value="2024">2024 년</option>
                             <option value="2023">2023 년</option>
@@ -80,7 +99,7 @@ function LoginMain({ isChange }) {
                         <input type="text" placeholder={"Email"} id='email' autoComplete="username" />
                         <input type="password" placeholder={"비밀번호 6자리 이상입력"} id='pass' autoComplete="new-password" />
                     </div>
-                    <button type='submit' className='origin__btn' style={{marginTop :'20px'}}>로그인</button>
+                    <button type='submit' className='origin__btn' style={{ marginTop: '20px' }}>로그인</button>
                 </form>
             </main>
         );
@@ -89,54 +108,62 @@ function LoginMain({ isChange }) {
 
 
 //로그인 페이지 푸터    소셜로그인 
-function LoginFooter({ isChange }) {
-    if (isChange) {
-        return (
-            <footer>
-                <div className='LoginFooter'>
-                    <p>OR</p>
-                </div>
-                {/*  google button */}
-                <button className='google__btn'>
-                    <FcGoogle />
-                    구글로 간편가입
-                </button>
-                {/*  kakao button */}
-                <button className='kakao__btn'>
-                    {/* <HiMiniChatBubbleOvalLeft />   얘 자체 오류있음  */}
-                    카카오로 간편가입
-                </button>
-                {/*  naver button */}
-                <button className='naver__btn'>
-                    <SiNaver />
-                    네이버로 간편가입
-                </button>
-            </footer>
-        );
-    } else {
-        return (
-            <footer>
-                <div className='LoginFooter'>
-                    <p>OR</p>
-                </div>
-                {/*  google button */}
-                <button className='google__btn'>
-                    <FcGoogle />
-                    구글 로그인
-                </button>
-                {/*  kakao button */}
-                <button className='kakao__btn'>
-                    {/* <HiMiniChatBubbleOvalLeft />   얘 자체 오류있음  */}
-                    카카오 로그인
-                </button>
-                {/*  naver button */}
-                <button className='naver__btn'>
-                    <SiNaver />
-                    네이버 로그인
-                </button>
-            </footer>
-        );
-    }
+function LoginFooter() {
+    const [token, setToken] = useState(null);
+
+    const REST_API_KEY = '은영님주세욘';
+    const REDIRECT_URI = '은영님주세욘2';
+    
+    const STATE_STRING = '몰루';
+    const googleScope = 'openid%20profile%20email'
+
+    const KAKAO_AUTH_URI = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
+    const NAVER_AUTH_URI = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${REST_API_KEY}&state=${STATE_STRING}&redirect_uri=${REDIRECT_URI}`;
+    const GOOGLE_AUTH_URI = `https://www.googleapis.com/oauth2/v2/auth?response_type=code&client_id=${REST_API_KEY}&scope=${googleScope}&redirect_uri=${REDIRECT_URI}`;
+
+    
+
+
+    // 네이버 로그인 함수
+    const loginWithNaver = () => {
+
+        window.location.href = NAVER_AUTH_URI;
+    };
+
+    // 카카오 로그인 함수
+    const loginWithKakao = () => {
+        window.location.href = KAKAO_AUTH_URI;
+    };
+
+    // 구글 로그인 함수
+    const loginWithGoogle = () => {
+        window.location.href = GOOGLE_AUTH_URI;
+    };
+    return (
+        <footer>
+
+            <div className='LoginFooter'>
+                <p>OR</p>
+            </div>
+            {/*  google button */}
+            <button className='google__btn' onClick={loginWithGoogle}>
+                <FcGoogle />
+                구글 로그인
+            </button>
+            {/*  kakao button */}
+            <button className='kakao__btn' onClick={loginWithKakao} >
+                {/* <HiMiniChatBubbleOvalLeft />   얘 자체 오류있음  */}
+                카카오 로그인
+            </button>
+            {/*  naver button */}
+            <button className='naver__btn' onClick={loginWithNaver}>
+                <SiNaver />
+                네이버 로그인
+            </button>
+            <p id="token-result">토큰: {token}</p>
+        </footer>
+    );
+
 
 }
 
@@ -162,7 +189,7 @@ function Login() {
                 <li></li>
                 <li></li>
                 <li></li>
-                
+
             </ul>
         </div>
     );
