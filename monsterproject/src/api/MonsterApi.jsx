@@ -17,6 +17,6 @@ export const 변수 = async (Fk값) => {
 // Login page 
 // 등록 
 export const Loginpush = async(obj)=>{
-    const res = await axios.post(`${Loginfix}/`,obj);
+    const res = await axios.post(`${Loginfix}/kakao/callback`,obj);
     return res.data
 }

@@ -4,6 +4,7 @@ import { SiNaver } from "react-icons/si";
 import { HiMiniChatBubbleOvalLeft } from "react-icons/hi2";
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import Redirection from '../components/Redirection';
 
 
 //////////////////js//////////////////////
@@ -14,17 +15,10 @@ const initState = {
     Lboolean: false
 }
 const socialState = {
-    response_type: '',
-    client_id: '',
-    redirect_uri: '',
-    scope: '',
-
-
-
-    autorization_uri: '',
-    token_uri: '',
-    user_info_uri: '',
-    user_name_attribute: ''
+    authorizationCode: 'TTT',
+    clientId: 'eee',
+    clientSecret: 'sss',
+    redirectUri: 'ttt'
 }
 ////////////////컴포넌트///////////////////
 //로그인 페이지 해더  회원가입/로그인
@@ -111,22 +105,17 @@ function LoginMain({ isChange }) {
 function LoginFooter() {
     const [token, setToken] = useState(null);
 
-    const REST_API_KEY = '은영님주세욘';
-    const REDIRECT_URI = '은영님주세욘2';
-    
-    const STATE_STRING = '몰루';
-    const googleScope = 'openid%20profile%20email'
+    const REST_API_KEY = '테스트1';
+    const REDIRECT_URI = '테스트2';
+    const STATE_STRING = '테스트3';
 
     const KAKAO_AUTH_URI = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
-    const NAVER_AUTH_URI = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${REST_API_KEY}&state=${STATE_STRING}&redirect_uri=${REDIRECT_URI}`;
-    const GOOGLE_AUTH_URI = `https://www.googleapis.com/oauth2/v2/auth?response_type=code&client_id=${REST_API_KEY}&scope=${googleScope}&redirect_uri=${REDIRECT_URI}`;
-
-    
+    const NAVER_AUTH_URI = `https://nid.naver.com/oauth2.0/authorize?response_type=token&state=${STATE_STRING}&client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}`;
+    const GOOGLE_AUTH_URI = `https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?response_type=code&client_id=${REST_API_KEY}&scope=openid%20profile%20email&redirect_uri=${REDIRECT_URI}`;
 
 
     // 네이버 로그인 함수
     const loginWithNaver = () => {
-
         window.location.href = NAVER_AUTH_URI;
     };
 
@@ -161,6 +150,7 @@ function LoginFooter() {
                 네이버 로그인
             </button>
             <p id="token-result">토큰: {token}</p>
+            {/* <Route exact path='/kakao/callback' element={<Redirection />} /> */}
         </footer>
     );
 
