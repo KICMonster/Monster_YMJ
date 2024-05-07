@@ -3,7 +3,9 @@ import { FcGoogle } from "react-icons/fc";
 import { SiNaver } from "react-icons/si";
 import { HiMiniChatBubbleOvalLeft } from "react-icons/hi2";
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import Redirection from '../components/Redirection';
 
 
@@ -103,10 +105,11 @@ function LoginMain({ isChange }) {
 
 //로그인 페이지 푸터    소셜로그인 
 function LoginFooter() {
-    const [token, setToken] = useState(null);
+    const [accessToken, setAccessToken] = useState(null);
+    const navigate = useNavigate();
 
-    const REST_API_KEY = '테스트1';
-    const REDIRECT_URI = '테스트2';
+    const REST_API_KEY = import.meta.env.VITE_REST_API_KEY;
+    const REDIRECT_URI = 'https://localhost:5174/login/auth/kakao/callback';
     const STATE_STRING = '테스트3';
 
     const KAKAO_AUTH_URI = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
@@ -128,6 +131,87 @@ function LoginFooter() {
     const loginWithGoogle = () => {
         window.location.href = GOOGLE_AUTH_URI;
     };
+
+    useEffect(() => {
+        const getCodeFromUrl = () => {
+          const urlParams = new URLSearchParams(window.location.search);
+          return urlParams.get('code');
+        };
+    
+        const code = getCodeFromUrl();
+    
+        if (code) {
+          // 인가 코드로 Access Token 요청
+          getAccessToken(code);
+        }
+      }, []);
+    
+      const getAccessToken = async (authCode) => {
+        const access_token_uri = import.meta.env.VITE_ACCESS_TOKEN_URI;
+        const body = new URLSearchParams({
+          grant_type: 'authorization_code',
+          client_id: REST_API_KEY,
+          client_secret: import.meta.env.VITE_CLIENT_SECRET,
+          redirect_uri: REDIRECT_URI,
+          code: authCode
+    
+        });
+    
+        try {
+          const response = await axios.post(access_token_uri, body, {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+            }
+          });
+    
+          const accessToken = response.data.access_token;
+          setAccessToken(accessToken);
+          console.log('발급된 Access Token:', accessToken);
+    
+          // 사용자 정보 요청
+          getUserInfo(accessToken);
+        } catch (error) {
+          console.error('Access Token 요청 중 오류 발생:', error);
+        }
+      };
+    
+      const getUserInfo = async (accessToken) => {
+        const user_info_uri = import.meta.env.VITE_USER_INFO_URI;
+    
+        try {
+          const userInfoResponse = await axios.get(user_info_uri, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          });
+    
+          const userInfo = userInfoResponse.data;
+          console.log('받아온 유저 정보:', userInfo);
+    
+          // 사용자 정보와 액세스 토큰을 백엔드로 전송
+          sendUserInfoToBackend(userInfo, accessToken);
+        } catch (error) {
+          console.error('사용자 정보 요청 중 오류 발생:', error);
+        }
+      };
+    
+      const sendUserInfoToBackend = async (userInfo, accessToken) => {
+        try {
+          const response = await axios.post('https://localhost:9092/api/authenticate', {
+            userInfo: userInfo,
+            accessToken: accessToken
+          });
+    
+          console.log('백엔드 응답:', response.data);
+          // 로그인 처리 완료 후 다음 동작 수행
+          // 예: 로그인 완료 후 리다이렉트 등
+          navigate('/');
+        } catch (error) {
+          console.error('백엔드로 사용자 정보 전송 중 오류 발생:', error);
+        }
+      };
+
+
     return (
         <footer>
 
@@ -149,7 +233,8 @@ function LoginFooter() {
                 <SiNaver />
                 네이버 로그인
             </button>
-            <p id="token-result">토큰: {token}</p>
+            <a>token : {accessToken}</a>
+            <a>key?{REST_API_KEY}</a>
             {/* <Route exact path='/kakao/callback' element={<Redirection />} /> */}
         </footer>
     );
