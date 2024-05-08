@@ -107,10 +107,10 @@ function LoginMain({ isChange }) {
 function LoginFooter() {
     const [accessToken, setAccessToken] = useState(null);
     const navigate = useNavigate();
-    
-    const [REST_API_KEY, setREST_API_KEY]=useState('');
-    const [client, setclient]= useState('');    
-    const [STATE_STRING, setSTATE_STRING]=useState('');
+
+    const [REST_API_KEY, setREST_API_KEY] = useState('');
+    const [client, setclient] = useState('');
+    const [STATE_STRING, setSTATE_STRING] = useState('');
 
     const REDIRECT_URI = 'https://localhost:5174/login/auth/kakao/callback';
 
@@ -125,7 +125,7 @@ function LoginFooter() {
 
         var naver_id_login = new naver_id_login(REST_API_KEY, "https://localhost:9092/login/oauth2/code/naver");
         var state = naver_id_login.getUniqState();
-        naver_id_login.setButton("white", 2,40);
+        naver_id_login.setButton("white", 2, 40);
         naver_id_login.setDomain("https://localhost:9092");
         naver_id_login.setState(state);
         naver_id_login.setPopup();
@@ -138,12 +138,19 @@ function LoginFooter() {
 
     // 카카오 로그인 함수
     const loginWithKakao = () => {
-        setREST_API_KEY(import.meta.env.VITE_KAKAO_API_KEY);
-        setclient(import.meta.env.VITE_KAKAO_SECRET);
-        
-        window.location.href = KAKAO_AUTH_URI;
-    };
-
+        return new Promise((resolve, reject) => {
+          setREST_API_KEY(import.meta.env.VITE_KAKAO_API_KEY);
+          setclient(import.meta.env.VITE_KAKAO_SECRET);
+          resolve();
+        })
+        .then(() => {
+          window.location.href = KAKAO_AUTH_URI;
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+      };
+      
     // 구글 로그인 함수
     const loginWithGoogle = () => {
         setREST_API_KEY(import.meta.env.VITE_GOOGLE_API_KEY);
@@ -153,83 +160,83 @@ function LoginFooter() {
 
     useEffect(() => {
         const getCodeFromUrl = () => {
-          const urlParams = new URLSearchParams(window.location.search);
-          return urlParams.get('code');
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('code');
         };
-    
+
         const code = getCodeFromUrl();
-    
+
         if (code) {
-          // 인가 코드로 Access Token 요청
-          getAccessToken(code);
+            // 인가 코드로 Access Token 요청
+            getAccessToken(code);
         }
-      }, []);
-    
-      const getAccessToken = async (authCode) => {
+    }, []);
+
+    const getAccessToken = async (authCode) => {
         const access_token_uri = import.meta.env.VITE_ACCESS_TOKEN_URI;
         const body = new URLSearchParams({
-          grant_type: 'authorization_code',
-          client_id: REST_API_KEY,
-          client_secret: client,
-          redirect_uri: REDIRECT_URI,
-          code: authCode
-    
-        });
-    
-        try {
-          const response = await axios.post(access_token_uri, body, {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
-            }
-          });
-    
-          const accessToken = response.data.access_token;
-          setAccessToken(accessToken);
-          console.log('발급된 Access Token:', accessToken);
-    
-          // 사용자 정보 요청
-          getUserInfo(accessToken);
-        } catch (error) {
-          console.error('Access Token 요청 중 오류 발생:', error);
-        }
-      };
-    
-      const getUserInfo = async (accessToken) => {
-        const user_info_uri = import.meta.env.VITE_USER_INFO_URI;
-    
-        try {
-          const userInfoResponse = await axios.get(user_info_uri, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`
-            }
-          });
-    
-          const userInfo = userInfoResponse.data;
-          console.log('받아온 유저 정보:', userInfo);
-    
-          // 사용자 정보와 액세스 토큰을 백엔드로 전송
-          sendUserInfoToBackend(userInfo, accessToken);
-        } catch (error) {
-          console.error('사용자 정보 요청 중 오류 발생:', error);
-        }
-      };
-    
-      const sendUserInfoToBackend = async (userInfo, accessToken) => {
-        try {
-          const response = await axios.post('https://localhost:9092/api/authenticate', {
+            grant_type: 'authorization_code',
+            client_id: REST_API_KEY,
+            client_secret: client,
+            redirect_uri: REDIRECT_URI,
+            code: authCode
 
-            userInfo: userInfo,
-            accessToken: accessToken
-          });
-    
-          console.log('백엔드 응답:', response.data);
-          // 로그인 처리 완료 후 다음 동작 수행
-          // 예: 로그인 완료 후 리다이렉트 등
-          navigate('/');
+        });
+
+        try {
+            const response = await axios.post(access_token_uri, body, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+                }
+            });
+
+            const accessToken = response.data.access_token;
+            setAccessToken(accessToken);
+            console.log('발급된 Access Token:', accessToken);
+
+            // 사용자 정보 요청
+            getUserInfo(accessToken);
         } catch (error) {
-          console.error('백엔드로 사용자 정보 전송 중 오류 발생:', error);
+            console.error('Access Token 요청 중 오류 발생:', error);
         }
-      };
+    };
+
+    const getUserInfo = async (accessToken) => {
+        const user_info_uri = import.meta.env.VITE_USER_INFO_URI;
+
+        try {
+            const userInfoResponse = await axios.get(user_info_uri, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            });
+
+            const userInfo = userInfoResponse.data;
+            console.log('받아온 유저 정보:', userInfo);
+
+            // 사용자 정보와 액세스 토큰을 백엔드로 전송
+            sendUserInfoToBackend(userInfo, accessToken);
+        } catch (error) {
+            console.error('사용자 정보 요청 중 오류 발생:', error);
+        }
+    };
+
+    const sendUserInfoToBackend = async (userInfo, accessToken) => {
+        try {
+            const response = await axios.post('https://localhost:9092/api/authenticate', {
+
+                userInfo: userInfo,
+                accessToken: accessToken
+            });
+
+            console.log('백엔드 응답:', response.data);
+            // 로그인 처리 완료 후 다음 동작 수행
+            // 예: 로그인 완료 후 리다이렉트 등
+            navigate('/');
+        } catch (error) {
+            console.error('백엔드로 사용자 정보 전송 중 오류 발생:', error);
+        }
+    };
 
 
     return (
