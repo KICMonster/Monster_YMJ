@@ -1,6 +1,11 @@
 import { defineConfig } from 'vite'
+import { config as dotenvConfig } from 'dotenv';
 import react from '@vitejs/plugin-react'
 import path from 'path';
+
+dotenvConfig();
+
+const __dirname = "";
 
 // https://vitejs.dev/config/
 export default defineConfig({

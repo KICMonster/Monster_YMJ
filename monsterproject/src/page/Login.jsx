@@ -10,18 +10,18 @@ import Redirection from '../components/Redirection';
 
 
 //////////////////js//////////////////////
-const initState = {
-    email: '',
-    passowrd: '',
-    dueDate: "",
-    Lboolean: false
-}
-const socialState = {
-    authorizationCode: 'TTT',
-    clientId: 'eee',
-    clientSecret: 'sss',
-    redirectUri: 'ttt'
-}
+// const userInfo = {
+//     loginId,
+//     name,
+//     password,
+//     birthday ,
+// }
+
+// const userA={
+//     loginId,
+//     password,
+// }
+
 ////////////////컴포넌트///////////////////
 //로그인 페이지 해더  회원가입/로그인
 function LoginHeader({ setisChange }) {
@@ -107,28 +107,47 @@ function LoginMain({ isChange }) {
 function LoginFooter() {
     const [accessToken, setAccessToken] = useState(null);
     const navigate = useNavigate();
+    
+    const [REST_API_KEY, setREST_API_KEY]=useState('');
+    const [client, setclient]= useState('');    
+    const [STATE_STRING, setSTATE_STRING]=useState('');
 
-    const REST_API_KEY = import.meta.env.VITE_REST_API_KEY;
     const REDIRECT_URI = 'https://localhost:5174/login/auth/kakao/callback';
-    const STATE_STRING = '테스트3';
 
     const KAKAO_AUTH_URI = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
-    const NAVER_AUTH_URI = `https://nid.naver.com/oauth2.0/authorize?response_type=token&state=${STATE_STRING}&client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}`;
     const GOOGLE_AUTH_URI = `https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?response_type=code&client_id=${REST_API_KEY}&scope=openid%20profile%20email&redirect_uri=${REDIRECT_URI}`;
-
+    const NAVER_AUTH_URI = `https://nid.naver.com/oauth2.0/authorize?response_type=token&state=${STATE_STRING}&client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}`;
 
     // 네이버 로그인 함수
     const loginWithNaver = () => {
+        setREST_API_KEY(import.meta.env.VITE_NAVER_API_KEY);
+        setclient(import.meta.env.VITE_NAVER_SECRET);
+
+        var naver_id_login = new naver_id_login(REST_API_KEY, "https://localhost:9092/login/oauth2/code/naver");
+        var state = naver_id_login.getUniqState();
+        naver_id_login.setButton("white", 2,40);
+        naver_id_login.setDomain("https://localhost:9092");
+        naver_id_login.setState(state);
+        naver_id_login.setPopup();
+        naver_id_login.init_naver_id_login();
+        setSTATE_STRING(state)
+
+
         window.location.href = NAVER_AUTH_URI;
     };
 
     // 카카오 로그인 함수
     const loginWithKakao = () => {
+        setREST_API_KEY(import.meta.env.VITE_KAKAO_API_KEY);
+        setclient(import.meta.env.VITE_KAKAO_SECRET);
+        
         window.location.href = KAKAO_AUTH_URI;
     };
 
     // 구글 로그인 함수
     const loginWithGoogle = () => {
+        setREST_API_KEY(import.meta.env.VITE_GOOGLE_API_KEY);
+        setclient(import.meta.env.VITE_GOOGLE_SECRET);
         window.location.href = GOOGLE_AUTH_URI;
     };
 
@@ -151,7 +170,7 @@ function LoginFooter() {
         const body = new URLSearchParams({
           grant_type: 'authorization_code',
           client_id: REST_API_KEY,
-          client_secret: import.meta.env.VITE_CLIENT_SECRET,
+          client_secret: client,
           redirect_uri: REDIRECT_URI,
           code: authCode
     
@@ -198,6 +217,7 @@ function LoginFooter() {
       const sendUserInfoToBackend = async (userInfo, accessToken) => {
         try {
           const response = await axios.post('https://localhost:9092/api/authenticate', {
+
             userInfo: userInfo,
             accessToken: accessToken
           });
@@ -233,8 +253,7 @@ function LoginFooter() {
                 <SiNaver />
                 네이버 로그인
             </button>
-            <a>token : {accessToken}</a>
-            <a>key?{REST_API_KEY}</a>
+            <div>클라:{REST_API_KEY}</div>
             {/* <Route exact path='/kakao/callback' element={<Redirection />} /> */}
         </footer>
     );
@@ -252,6 +271,7 @@ function Login() {
             <LoginHeader setisChange={setisChange} />
             <LoginMain isChange={isChange} />
             <LoginFooter isChange={isChange} />
+
 
             <ul className="bg-bubbles">
                 <li></li>

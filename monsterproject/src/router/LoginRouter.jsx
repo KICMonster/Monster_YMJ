@@ -1,9 +1,4 @@
-import React from 'react';
-import Home from '../page/Home';
 import Redirection from '../components/Redirection';
-
-
-
 
 const LoginRouter = () => {
   return [{

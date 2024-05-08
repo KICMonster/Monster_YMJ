@@ -1,9 +1,8 @@
 import axios from "axios";
 
 // 경로
-export const API_SERVER_HOST = "http://localhost:9090";
+export const API_SERVER_HOST = "http://localhost:9092";
 const prefix = `${API_SERVER_HOST}/`;
-const Loginfix = `${API_SERVER_HOST}/Loign`;
 
 //비동기 통신 
 export const 변수 = async (Fk값) => {
@@ -16,7 +15,17 @@ export const 변수 = async (Fk값) => {
 
 // Login page 
 // 등록 
-export const Loginpush = async(obj)=>{
-    const res = await axios.post(`${Loginfix}/kakao/callback`,obj);
+export const userAdd = async(userInfo)=>{
+    const res = await axios.post(`${prefix}/`,userInfo);
+    return res.data
+}
+
+export const userLogin = async(userA)=>{
+    const res = await axios.get(`${prefix}/`,userA);
+    return res.data
+}
+
+export const sociallLogin = async(socialInfo)=>{
+    const res = await axios.get(`${prefix}/kakao/callback`,socialInfo);
     return res.data
 }
