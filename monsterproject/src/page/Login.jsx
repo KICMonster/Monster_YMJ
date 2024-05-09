@@ -9,6 +9,7 @@ import axios from 'axios';
 import Redirection from '../components/Redirection';
 
 
+
 //////////////////js//////////////////////
 // const userInfo = {
 //     loginId,
@@ -56,7 +57,7 @@ function LoginMain({ isChange }) {
             <main>
                 <form action='/login' method='post' style={{ width: '100%' }}>
                     <div className="LoginMainBody">
-                        <input type="text" placeholder={"Email"} id='email' autoComplete="username" />
+                        <input type="text" placeholder={"ID"} id='email' autoComplete="username" />
                         <input type="text" placeholder="사용자 이름" id="username" />
                         <input type="password" placeholder="비밀번호 6자리 이상입력" id='pass' autoComplete="new-password" />
                         <input type="password" placeholder="재확인 비밀번호 6자리 이상입력" id='pass2' autoComplete="new-password" />
@@ -92,8 +93,8 @@ function LoginMain({ isChange }) {
             <main>
                 <form style={{ width: '100%' }}>
                     <div className="LoginMainBody">
-                        <input type="text" placeholder={"Email"} id='email' autoComplete="username" />
-                        <input type="password" placeholder={"비밀번호 6자리 이상입력"} id='pass' autoComplete="new-password" />
+                        <input type="text" placeholder={"ID"} id='email' autoComplete="username" />
+                        <input type="password" placeholder={"PASSWORD"} id='pass' autoComplete="new-password" />
                     </div>
                     <button type='submit' className='origin__btn' style={{ marginTop: '20px' }}>로그인</button>
                 </form>
@@ -107,10 +108,10 @@ function LoginMain({ isChange }) {
 function LoginFooter() {
     const [accessToken, setAccessToken] = useState(null);
     const navigate = useNavigate();
-
-    const [REST_API_KEY, setREST_API_KEY] = useState('');
-    const [client, setclient] = useState('');
-    const [STATE_STRING, setSTATE_STRING] = useState('');
+    
+    const [REST_API_KEY, setREST_API_KEY]=useState('');
+    const [client, setclient]= useState('');    
+    const [STATE_STRING, setSTATE_STRING]=useState('a32cbdec-aff6-4376-b0a2-73b84a6a4214');
 
     const REDIRECT_URI = 'https://localhost:5174/login/auth/kakao/callback';
 
@@ -125,118 +126,107 @@ function LoginFooter() {
 
         var naver_id_login = new naver_id_login(REST_API_KEY, "https://localhost:9092/login/oauth2/code/naver");
         var state = naver_id_login.getUniqState();
-        naver_id_login.setButton("white", 2, 40);
+        naver_id_login.setButton("white", 2,40);
         naver_id_login.setDomain("https://localhost:9092");
         naver_id_login.setState(state);
         naver_id_login.setPopup();
         naver_id_login.init_naver_id_login();
         setSTATE_STRING(state)
 
-
-        window.location.href = NAVER_AUTH_URI;
     };
 
     // 카카오 로그인 함수
     const loginWithKakao = () => {
-        return new Promise((resolve, reject) => {
-          setREST_API_KEY(import.meta.env.VITE_KAKAO_API_KEY);
-          setclient(import.meta.env.VITE_KAKAO_SECRET);
-          resolve();
-        })
-        .then(() => {
-          window.location.href = KAKAO_AUTH_URI;
-        })
-        .catch((error) => {
-          console.error('Error:', error);
-        });
-      };
-      
+        setREST_API_KEY(import.meta.env.VITE_KAKAO_API_KEY);
+        setclient(import.meta.env.VITE_KAKAO_SECRET);
+    
+    };
+
     // 구글 로그인 함수
     const loginWithGoogle = () => {
         setREST_API_KEY(import.meta.env.VITE_GOOGLE_API_KEY);
         setclient(import.meta.env.VITE_GOOGLE_SECRET);
-        window.location.href = GOOGLE_AUTH_URI;
     };
 
     useEffect(() => {
         const getCodeFromUrl = () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('code');
+          const urlParams = new URLSearchParams(window.location.search);
+          return urlParams.get('code');
         };
-
+    
         const code = getCodeFromUrl();
-
+    
         if (code) {
-            // 인가 코드로 Access Token 요청
-            getAccessToken(code);
+          // 인가 코드로 Access Token 요청     
+          getAccessToken(code);
         }
-    }, []);
-
-    const getAccessToken = async (authCode) => {
+      }, []);
+    
+      const getAccessToken = async (authCode) => {
         const access_token_uri = import.meta.env.VITE_ACCESS_TOKEN_URI;
         const body = new URLSearchParams({
-            grant_type: 'authorization_code',
-            client_id: REST_API_KEY,
-            client_secret: client,
-            redirect_uri: REDIRECT_URI,
-            code: authCode
-
+          grant_type: 'authorization_code',
+          client_id: REST_API_KEY,
+          client_secret: client,
+          redirect_uri: REDIRECT_URI,
+          code: authCode
+    
         });
-
+    
         try {
-            const response = await axios.post(access_token_uri, body, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
-                }
-            });
-
-            const accessToken = response.data.access_token;
-            setAccessToken(accessToken);
-            console.log('발급된 Access Token:', accessToken);
-
-            // 사용자 정보 요청
-            getUserInfo(accessToken);
+          const response = await axios.post(access_token_uri, body, {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+            }
+          });
+    
+          const accessToken = response.data.access_token;
+          setAccessToken(accessToken);
+          console.log('발급된 Access Token:', accessToken);
+    
+          // 사용자 정보 요청
+          getUserInfo(accessToken);
         } catch (error) {
-            console.error('Access Token 요청 중 오류 발생:', error);
+          console.error('Access Token 요청 중 오류 발생:', error);
         }
-    };
-
-    const getUserInfo = async (accessToken) => {
+      };
+    
+      const getUserInfo = async (accessToken) => {
         const user_info_uri = import.meta.env.VITE_USER_INFO_URI;
-
+    
         try {
-            const userInfoResponse = await axios.get(user_info_uri, {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`
-                }
-            });
-
-            const userInfo = userInfoResponse.data;
-            console.log('받아온 유저 정보:', userInfo);
-
-            // 사용자 정보와 액세스 토큰을 백엔드로 전송
-            sendUserInfoToBackend(userInfo, accessToken);
+          const userInfoResponse = await axios.get(user_info_uri, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`
+            }
+          });
+    
+          const userInfo = userInfoResponse.data;
+          console.log('받아온 유저 정보:', userInfo);
+    
+          // 사용자 정보와 액세스 토큰을 백엔드로 전송
+          sendUserInfoToBackend(userInfo, accessToken);
         } catch (error) {
-            console.error('사용자 정보 요청 중 오류 발생:', error);
+          console.error('사용자 정보 요청 중 오류 발생:', error);
         }
-    };
-
-    const sendUserInfoToBackend = async (userInfo, accessToken) => {
+      };
+    
+      const sendUserInfoToBackend = async (userInfo, accessToken) => {
         try {
-            const response = await axios.post('https://localhost:9092/api/authenticate', {
+          const response = await axios.post('https://localhost:9092/api/authenticate', {
 
-                userInfo: userInfo,
-                accessToken: accessToken
-            });
-
-            console.log('백엔드 응답:', response.data);
-            // 로그인 처리 완료 후 다음 동작 수행
-            // 예: 로그인 완료 후 리다이렉트 등
-            navigate('/');
+            userInfo: userInfo,
+            accessToken: accessToken
+          });
+    
+          console.log('백엔드 응답:', response.data);
+          // 로그인 처리 완료 후 다음 동작 수행
+          // 예: 로그인 완료 후 리다이렉트 등
+          navigate('/');
         } catch (error) {
-            console.error('백엔드로 사용자 정보 전송 중 오류 발생:', error);
+          console.error('백엔드로 사용자 정보 전송 중 오류 발생:', error);
         }
-    };
+      };
 
 
     return (
@@ -247,22 +237,20 @@ function LoginFooter() {
             </div>
             {/*  google button */}
             <button className='google__btn' onClick={loginWithGoogle}>
-                <FcGoogle />
-                구글 로그인
+                <Link to={GOOGLE_AUTH_URI}><FcGoogle /> 구글 로그인</Link>    
             </button>
+
             {/*  kakao button */}
-            <button className='kakao__btn' onClick={loginWithKakao} >
-                {/* <HiMiniChatBubbleOvalLeft />   얘 자체 오류있음  */}
-                카카오 로그인
+            <button className='kakao__btn' onClick={loginWithKakao}  >
+            <Link to={KAKAO_AUTH_URI}><HiMiniChatBubbleOvalLeft  /> 카카오 로그인</Link>
             </button>
+
             {/*  naver button */}
             <button className='naver__btn' onClick={loginWithNaver}>
-                <SiNaver />
-                네이버 로그인
+                <Link to={NAVER_AUTH_URI}><SiNaver /> 네이버 로그인</Link>
             </button>
-            <div>클라:{REST_API_KEY}</div>
-            {/* <Route exact path='/kakao/callback' element={<Redirection />} /> */}
-        </footer>
+            
+           </footer>
     );
 
 

@@ -192,7 +192,15 @@
   padding-left: 8%;
   margin: 10px;
 }
-
+.google__btn > a,
+.kakao__btn > a,
+.naver__btn > a {
+  display: inline-block;
+  width: 100%;
+  height: 88%;
+  color: white;
+  text-decoration: none; 
+}
 .origin__btn {
   background: #e91e63;
   color: white;
@@ -237,7 +245,6 @@
       font-size: 25px;
 
     }
-
     &:hover {
       box-shadow: 0 0 0 rgba(91, 144, 240, .0);
     }
@@ -250,6 +257,7 @@
     transition: .2s linear;
 
     svg {
+      color: black;
       font-size: 25px;
       position: absolute;
       transform: translateY(25%) translateX(-114%);
