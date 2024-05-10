@@ -3,3 +3,7 @@ build/*
 .idea
 .DS_Store
 util
+test/src/main/resources/application.yml
+test/src/main/resources/cert.pem
+test/src/main/resources/key.pem
+test/src/main/resources/keystore.p12

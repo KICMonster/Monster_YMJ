@@ -6,9 +6,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import Redirection from '../components/Redirection';
 
-
+const corsAnywhere = 'https://cors-anywhere.herokuapp.com/';
 
 //////////////////js//////////////////////
 // const userInfo = {
@@ -108,125 +107,126 @@ function LoginMain({ isChange }) {
 function LoginFooter() {
     const [accessToken, setAccessToken] = useState(null);
     const navigate = useNavigate();
-    
-    const [REST_API_KEY, setREST_API_KEY]=useState('');
-    const [client, setclient]= useState('');    
-    const [STATE_STRING, setSTATE_STRING]=useState('a32cbdec-aff6-4376-b0a2-73b84a6a4214');
 
-    const REDIRECT_URI = 'https://localhost:5174/login/auth/kakao/callback';
-
-    const KAKAO_AUTH_URI = `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
-    const GOOGLE_AUTH_URI = `https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?response_type=code&client_id=${REST_API_KEY}&scope=openid%20profile%20email&redirect_uri=${REDIRECT_URI}`;
-    const NAVER_AUTH_URI = `https://nid.naver.com/oauth2.0/authorize?response_type=token&state=${STATE_STRING}&client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}`;
-
-    // 네이버 로그인 함수
-    const loginWithNaver = () => {
-        setREST_API_KEY(import.meta.env.VITE_NAVER_API_KEY);
-        setclient(import.meta.env.VITE_NAVER_SECRET);
-
-        var naver_id_login = new naver_id_login(REST_API_KEY, "https://localhost:9092/login/oauth2/code/naver");
-        var state = naver_id_login.getUniqState();
-        naver_id_login.setButton("white", 2,40);
-        naver_id_login.setDomain("https://localhost:9092");
-        naver_id_login.setState(state);
-        naver_id_login.setPopup();
-        naver_id_login.init_naver_id_login();
-        setSTATE_STRING(state)
-
-    };
-
-    // 카카오 로그인 함수
-    const loginWithKakao = () => {
-        setREST_API_KEY(import.meta.env.VITE_KAKAO_API_KEY);
-        setclient(import.meta.env.VITE_KAKAO_SECRET);
-    
-    };
-
-    // 구글 로그인 함수
-    const loginWithGoogle = () => {
-        setREST_API_KEY(import.meta.env.VITE_GOOGLE_API_KEY);
-        setclient(import.meta.env.VITE_GOOGLE_SECRET);
-    };
+    const KAKAO_AUTH_URI = `https://kauth.kakao.com/oauth/authorize?client_id=${import.meta.env.VITE_KAKAO_REST_API_KEY}&redirect_uri=${import.meta.env.VITE_KAKAO_REDIRECT_URI}&response_type=code&scope=account_email,openid,profile_nickname`;
+    const GOOGLE_AUTH_URI = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${import.meta.env.VITE_GOOGLE_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_GOOGLE_REDIRECT_URI}&response_type=code&scope=openid%20profile%20email`
+    const NAVER_AUTH_URI = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${import.meta.env.VITE_NAVER_CLIENT_ID}&redirect_uri=${import.meta.env.VITE_NAVER_REDIRECT_URI}&state=STATE_STRING`;
 
     useEffect(() => {
         const getCodeFromUrl = () => {
-          const urlParams = new URLSearchParams(window.location.search);
-          return urlParams.get('code');
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('code');
         };
-    
-        const code = getCodeFromUrl();
-    
-        if (code) {
-          // 인가 코드로 Access Token 요청     
-          getAccessToken(code);
-        }
-      }, []);
-    
-      const getAccessToken = async (authCode) => {
-        const access_token_uri = import.meta.env.VITE_ACCESS_TOKEN_URI;
-        const body = new URLSearchParams({
-          grant_type: 'authorization_code',
-          client_id: REST_API_KEY,
-          client_secret: client,
-          redirect_uri: REDIRECT_URI,
-          code: authCode
-    
-        });
-    
-        try {
-          const response = await axios.post(access_token_uri, body, {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
-            }
-          });
-    
-          const accessToken = response.data.access_token;
-          setAccessToken(accessToken);
-          console.log('발급된 Access Token:', accessToken);
-    
-          // 사용자 정보 요청
-          getUserInfo(accessToken);
-        } catch (error) {
-          console.error('Access Token 요청 중 오류 발생:', error);
-        }
-      };
-    
-      const getUserInfo = async (accessToken) => {
-        const user_info_uri = import.meta.env.VITE_USER_INFO_URI;
-    
-        try {
-          const userInfoResponse = await axios.get(user_info_uri, {
-            headers: {
-              Authorization: `Bearer ${accessToken}`
-            }
-          });
-    
-          const userInfo = userInfoResponse.data;
-          console.log('받아온 유저 정보:', userInfo);
-    
-          // 사용자 정보와 액세스 토큰을 백엔드로 전송
-          sendUserInfoToBackend(userInfo, accessToken);
-        } catch (error) {
-          console.error('사용자 정보 요청 중 오류 발생:', error);
-        }
-      };
-    
-      const sendUserInfoToBackend = async (userInfo, accessToken) => {
-        try {
-          const response = await axios.post('https://localhost:9092/api/authenticate', {
 
-            userInfo: userInfo,
-            accessToken: accessToken
-          });
-    
-          console.log('백엔드 응답:', response.data);
-          // 로그인 처리 완료 후 다음 동작 수행
-          // 예: 로그인 완료 후 리다이렉트 등
-          navigate('/');
-        } catch (error) {
-          console.error('백엔드로 사용자 정보 전송 중 오류 발생:', error);
+        const service = window.location.pathname.substring(1); // URL에서 서비스명 추출 (예: /kakao, /google, /naver)
+        const code = getCodeFromUrl();
+
+        if (code) {
+            // 인가 코드로 Access Token 요청
+            getAccessToken(code, service);
         }
-      };
+    }, []);
+
+    const getAccessToken = async (authCode, service) => {
+        let access_token_uri;
+        let body;
+
+        switch (service) {
+            case 'kakao':
+                access_token_uri = 'https://kauth.kakao.com/oauth/token';
+                body = new URLSearchParams({
+                    grant_type: 'authorization_code',
+                    client_id: import.meta.env.VITE_KAKAO_REST_API_KEY,
+                    redirect_uri: import.meta.env.VITE_KAKAO_REDIRECT_URI,
+                    client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET,
+                    code: authCode
+                });
+                break;
+            case 'google':
+                access_token_uri = `${import.meta.env.VITE_GOOGLE_TOKEN_URI}`;
+                body = new URLSearchParams({
+                    grant_type: 'authorization_code',
+                    client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+                    client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET,
+                    redirect_uri: import.meta.env.VITE_GOOGLE_REDIRECT_URI,
+                    code: authCode
+                });
+                break;
+            case 'naver':
+                access_token_uri = 'https://nid.naver.com/oauth2.0/token';
+                body = new URLSearchParams({
+                    grant_type: 'authorization_code',
+                    client_id: import.meta.env.VITE_NAVER_CLIENT_ID,
+                    client_secret: import.meta.env.VITE_NAVER_CLIENT_SECRET,
+                    redirect_uri: import.meta.env.VITE_NAVER_REDIRECT_URI,
+                    state: 'STATE_STRING',
+                    code: authCode
+                });
+                break;
+            default:
+                console.error('Unsupported service');
+                return;
+        }
+
+
+        try {
+            const response = await axios.post(access_token_uri, body, {
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
+                }
+            });
+
+            const accessToken = response.data.access_token;
+            setAccessToken(accessToken);
+
+
+            console.log('발급된 Access Token:', accessToken);
+
+
+
+            // 여기서 백엔드로 액세스 토큰을 전송할 수 있습니다.
+            sendAccessTokenToBackend(accessToken);
+        } catch (error) {
+            console.error('Access Token 요청 중 오류 발생:', error);
+        }
+    };
+
+    const sendAccessTokenToBackend = async (accessToken) => {
+        try {
+            const response = await axios.post(
+                'https://localhost:9092/api/authenticate',
+                {
+                    accessToken: accessToken
+                },
+                {
+                    headers: {
+                        'Content-Type': 'application/json' // JSON 형식으로 전송합니다.
+                    },
+                    withCredentials: true // withCredentials 옵션은 여기에 포함
+                }
+            );
+
+
+            console.log('전송된 Access Token:', accessToken);
+
+            console.log('백엔드 응답:', response.data);
+            // 로그인 처리 완료 후 다음 동작 수행
+            // 예: 로그인 완료 후 리다이렉트 등
+            // jwtAccessToken이 존재하는지 확인
+            if (response.data && response.data.jwtAccessToken) {
+                console.log('로그인 성공:', response.data);
+                localStorage.setItem('jwt', response.data.jwtAccessToken); // JWT 토큰 저장
+                navigate('/');
+            } else {
+                // jwtAccessToken이 없는 경우 에러 처리
+                throw new Error('jwtAccessToken이 없습니다.');
+            }
+        } catch (error) {
+            console.error('백엔드로 사용자 정보 전송 중 오류 발생:', error);
+            alert('에러가 발생하여 로그인 페이지로 돌아갑니다.');
+            navigate('/login');
+        }
+    };
 
 
     return (
@@ -236,21 +236,21 @@ function LoginFooter() {
                 <p>OR</p>
             </div>
             {/*  google button */}
-            <button className='google__btn' onClick={loginWithGoogle}>
-                <Link to={GOOGLE_AUTH_URI}><FcGoogle /> 구글 로그인</Link>    
+            <button className='google__btn' >
+                <Link to={GOOGLE_AUTH_URI}><FcGoogle /> 구글 로그인</Link>
             </button>
 
             {/*  kakao button */}
-            <button className='kakao__btn' onClick={loginWithKakao}  >
-            <Link to={KAKAO_AUTH_URI}><HiMiniChatBubbleOvalLeft  /> 카카오 로그인</Link>
+            <button className='kakao__btn' >
+                <Link to={KAKAO_AUTH_URI}><HiMiniChatBubbleOvalLeft /> 카카오 로그인</Link>
             </button>
 
             {/*  naver button */}
-            <button className='naver__btn' onClick={loginWithNaver}>
+            <button className='naver__btn' >
                 <Link to={NAVER_AUTH_URI}><SiNaver /> 네이버 로그인</Link>
             </button>
-            
-           </footer>
+
+        </footer>
     );
 
 

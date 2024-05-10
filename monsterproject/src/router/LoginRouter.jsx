@@ -1,11 +1,11 @@
-import Redirection from '../components/Redirection';
+import Home from '../page/Home';
 
 const LoginRouter = () => {
   return [{
     path : 'auth/kakao/callback',
-    element : <Redirection  />
-  }
-];
+    element : <Home />
+    
+  }];
 };
 
 export default LoginRouter;
