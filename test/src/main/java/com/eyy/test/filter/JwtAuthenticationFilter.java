@@ -1,6 +1,7 @@
 package com.eyy.test.filter;
 
 import com.eyy.test.dto.UserInfo;
+import com.eyy.test.entity.Member;
 import com.eyy.test.jwt.JWTProvider;
 import com.eyy.test.repository.MemberRepository;
 import io.jsonwebtoken.Claims;
@@ -17,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -39,26 +41,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String token = parseBearerToken(request);
 
-            if (token != null && jwtProvider.validateToken(token)) {
-                // 토큰을 파싱하여 사용자 정보 추출
-                Claims claims = jwtProvider.parseClaims(token);
+            if (token != null && !jwtProvider.validateToken(token)) {
+                // 액세스 토큰 만료 시 리프레시 토큰 유효성 검사
+                String refreshToken = request.getHeader("Refresh");
+                if (refreshToken != null && jwtProvider.validateRefreshToken(refreshToken)) {
+                    Claims claims = jwtProvider.parseClaims(refreshToken);
+                    String username = claims.getSubject();
 
-                if (claims != null) {
-                    // 사용자 정보를 UserInfo 객체로 변환 (예시)
-                    UserInfo userInfo = extractUserInfoFromClaims(claims);
+                    // 새로운 액세스 토큰 생성
+                    String newAccessToken = jwtProvider.createAccessToken(username, claims.get("auth", String.class));
 
-                    // UserInfo 객체를 사용하여 Authentication 객체 생성
-                    Authentication auth = jwtProvider.getAuthentication(userInfo);
+                    // 새로운 액세스 토큰을 응답 헤더에 추가
+                    response.setHeader("Authorization", "Bearer " + newAccessToken);
 
-                    // SecurityContextHolder에 Authentication 설정
+                    // 새로운 액세스 토큰으로 Authentication 객체 생성 및 SecurityContextHolder에 설정
+                    Authentication auth = jwtProvider.getAuthentication(extractUserInfoFromClaims(claims));
                     SecurityContextHolder.getContext().setAuthentication(auth);
+                }
+            } else if (token != null) {
+                // 기존 로직 실행
+                Claims claims = jwtProvider.parseClaims(token);
+                if (claims != null) {
+                    UserInfo userInfo = extractUserInfoFromClaims(claims);
+                    Authentication auth = jwtProvider.getAuthentication(userInfo);
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+
+                    // 사용자 정보 업데이트
+                    updateUserInfo(claims);
+
                 }
             }
 
             filterChain.doFilter(request, response);
         } catch (Exception exception) {
             log.error("Authentication error", exception);
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 인증 실패 시 응답 코드 설정
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
     }
 
@@ -69,5 +86,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         userInfo.setRoles(Arrays.asList(claims.get("roles", com.eyy.test.Enumeration.Role.class)));
         // 필요한 사용자 정보를 Claims에서 추출하여 UserInfo 객체에 설정
         return userInfo;
+    }
+    // 사용자 정보 업데이트 메서드
+    private void updateUserInfo(Claims claims) {
+        String email = claims.get("email", String.class);
+
+        if (email != null) {
+            Optional<Member> optionalMember = memberRepository.findByEmail(email);
+            if (optionalMember.isPresent()) {
+                Member member = optionalMember.get();
+                // 필요한 필드 업데이트
+                member.setName(claims.get("name", String.class));
+                member.setRole(claims.get("roles", com.eyy.test.Enumeration.Role.class));
+                // 필요한 필드 업데이트 후 저장
+                memberRepository.save(member);
+                log.info("Member information updated: {}", member);
+            }
+        }
     }
 }

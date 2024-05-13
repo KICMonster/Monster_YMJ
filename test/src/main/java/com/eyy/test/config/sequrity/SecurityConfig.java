@@ -7,6 +7,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 
@@ -16,6 +18,11 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -44,8 +51,11 @@ public class SecurityConfig {
                         .failureUrl("/login?error=true") // 로그인 실패 시 리디렉션할 URL 지정
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/api/authenticate").permitAll() // Preflight 요청 허용
-                        .requestMatchers("/api/authenticate").permitAll() // /api/authenticate 경로에 대해 모든 요청 허용
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/authenticate","/join/emails/verification-requests"
+                                ,"/join/emails/verifications","/join/submit").permitAll() // Preflight 요청 허용
+                        .requestMatchers(HttpMethod.DELETE, "/join/withdraw").permitAll() // DELETE 요청은 인증 필요
+                        .requestMatchers("/api/authenticate", "/join/emails/verification-requests"
+                                ,"/join/emails/verifications","/join/submit" , "/login").permitAll() // /api/authenticate 경로에 대해 모든 요청 허용
                         .anyRequest().authenticated() // 다른 요청은 인증 필요
                 );
 

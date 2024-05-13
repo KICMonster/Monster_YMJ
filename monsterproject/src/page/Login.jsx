@@ -10,13 +10,22 @@ import axios from 'axios';
 const corsAnywhere = 'https://cors-anywhere.herokuapp.com/';
 
 //////////////////js//////////////////////
-// const userInfo = {
-//     email,
-//     password,
-//     name,
-//     birth,
+<<<<<<< HEAD
+const userInfo = {
+    email,
+    password,
+    name,
+    birth,
        
+}
+=======
+// const userInfo = {
+//     loginId,
+//     name,
+//     password,
+//     birthday ,
 // }
+>>>>>>> parent of 6517b99 (DB 테스트 계정 생성 프론트 로그인 시도중)
 
 // const userA={
 //     loginId,
@@ -52,59 +61,14 @@ function LoginHeader({ setisChange }) {
 }
 //로그인 페이지 메인 
 function LoginMain({ isChange }) {
-    const [email, setEmail] =useState("");   // email아님 id임 
-    const [password, setPassword] =useState("");
-    const [name, setName] =useState("");
-    const [birth, setBirth] =useState("");
-    const [loginCheck, setLoginCheck] = useState(false);
-
-    const navigate =useNavigate();
-
-
-    const handleLogin = async (event)=>{
-        //로그인 처리 로직
-        event.preventDefault();
-        await new Promise((r) => setTimeout(r, 100));
-
-        const response = await fetch(
-            "로그인 서버 주소",
-            {
-                method:"POST",
-                headers:{
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    email : email,
-                    password : password,
-                    // name : name,
-                    // birth : birth
-                }),
-            }
-        );
-
-        const result = await response.json();
-
-        if (response.status === 200){
-            setLoginCheck(false);
-            sessionStorage.setItem("token",result.token);
-            sessionStorage.setItem("email",result.email);
-            sessionStorage.setItem("role", result.role);
-            sessionStorage.setItem("storeid", result.storeId);
-            console.log("로그인 성공. 아이디 :" + result.email);
-            navigate("/")  //로그인 성공 -> 홈
-        }else{
-            setLoginCheck(true);
-        }
-    }
-
     if (isChange) {
         return (
             <main>
                 <form action='/login' method='post' style={{ width: '100%' }}>
                     <div className="LoginMainBody">
-                        <input type="text" placeholder={"ID"} id='email' autoComplete="username" value={email} onChange={(e)=>setEmail(e.target.value)}/>
-                        <input type="text" placeholder="사용자 이름" id="username" value={name}  onChange={(e)=>setName(e.target.value)} />
-                        <input type="password" placeholder="비밀번호 6자리 이상입력" id='pass' autoComplete="new-password" value={password}  onChange={(e)=>setPassword(e.target.value)} />
+                        <input type="text" placeholder={"ID"} id='email' autoComplete="username" />
+                        <input type="text" placeholder="사용자 이름" id="username" />
+                        <input type="password" placeholder="비밀번호 6자리 이상입력" id='pass' autoComplete="new-password" />
                         <input type="password" placeholder="재확인 비밀번호 6자리 이상입력" id='pass2' autoComplete="new-password" />
                         <select id='date__yy'>
                             <option value="2024">2024 년</option>
@@ -138,10 +102,10 @@ function LoginMain({ isChange }) {
             <main>
                 <form style={{ width: '100%' }}>
                     <div className="LoginMainBody">
-                        <input type="text" placeholder={"ID"} id='email' autoComplete="username"  value={email} onChange={(e)=>setEmail(e.target.value)}/>
-                        <input type="password" placeholder={"PASSWORD"} id='pass' autoComplete="new-password" value={password}  onChange={(e)=>setPassword(e.target.value)} />
+                        <input type="text" placeholder={"ID"} id='email' autoComplete="username" />
+                        <input type="password" placeholder={"PASSWORD"} id='pass' autoComplete="new-password" />
                     </div>
-                    <button type='submit' className='origin__btn' style={{ marginTop: '20px' }} onClick={handleLogin}>로그인</button>
+                    <button type='submit' className='origin__btn' style={{ marginTop: '20px' }}>로그인</button>
                 </form>
             </main>
         );
@@ -304,7 +268,7 @@ function LoginFooter() {
 
 
 function Login() {
-    const [isChange, setisChange] = useState(false);  // 로그인 상태 체크 
+    const [isChange, setisChange] = useState(false);
 
 
     return (

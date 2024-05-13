@@ -65,6 +65,30 @@ public class JWTProvider {
                 .refreshToken(refreshToken)
                 .build();
     }
+    // ---------------------------------기존유저 로직 ---------------------------------
+    // 리프레시 토큰 유효성 검사
+    public boolean validateRefreshToken(String refreshToken) {
+        try {
+            Jwts.parser().setSigningKey(key).parseClaimsJws(refreshToken);
+            return true;
+        } catch (JwtException e) {
+            log.error("Invalid JWT Refresh Token", e);
+            return false;
+        }
+    }
+
+    // 새로운 액세스 토큰 생성
+    public String createAccessToken(String email, String authorities) {
+        long now = System.currentTimeMillis();
+        Date accessTokenExpiresIn = new Date(now + 86400000); // 1일 유효 기간
+
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("auth", authorities)
+                .setExpiration(accessTokenExpiresIn)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
 
     // 수정된 getAuthentication 메서드
     public Authentication getAuthentication(UserInfo userInfo) {

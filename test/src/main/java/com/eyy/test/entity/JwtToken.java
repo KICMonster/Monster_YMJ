@@ -3,6 +3,8 @@ package com.eyy.test.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 @Entity
 @SequenceGenerator(name = "token_seq", sequenceName = "token_seq", allocationSize = 1)
@@ -15,6 +17,7 @@ public class JwtToken {
     private String grantType;
     private String jwtAccessToken;
     private String refreshToken;
+    private LocalDate expiresIn;    // 리프레시토큰 만료일자. 액세스토큰 만료시 리프레시토큰으로 액세스토큰 재발급하므로 필요
 
     @ManyToOne // Member와의 ManyToOne 관계를 나타냄
     @JoinColumn(name = "member_id") // 외래 키의 이름 지정

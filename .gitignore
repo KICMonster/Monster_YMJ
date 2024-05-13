@@ -7,3 +7,7 @@ test/src/main/resources/application.yml
 test/src/main/resources/cert.pem
 test/src/main/resources/key.pem
 test/src/main/resources/keystore.p12
+test/backup/src/main/resources/application.yml
+test/backup/src/main/resources/cert.pem
+test/backup/src/main/resources/key.pem
+test/backup/src/main/resources/keystore.p12
