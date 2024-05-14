@@ -39,8 +39,8 @@ public class BaiscLoginServicempl implements BaiscLoginService {
 	@Override
 	// 회원정보 찾기(로그인?)
 	public JwtTokenDTO login(LocalLoginRequest request) {
-		Optional<Member> resulte = memberRepository.findByEmail(request.getEmail());
-		Member m = resulte .orElseThrow();
+		Optional<Member> result = memberRepository.findByEmail(request.getEmail());
+		Member m = result .orElseThrow();
 		UserInfo user = entityToDto(m);
 		
 		Authentication authentication = jwtProvider.getAuthentication(user);
