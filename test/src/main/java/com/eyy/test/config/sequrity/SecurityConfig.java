@@ -44,18 +44,18 @@ public class SecurityConfig {
                         .failureUrl("/login?error=true") // 로그인 실패 시 리디렉션할 URL 지정
                         .permitAll()
                 )
-                .formLogin(formLogin -> formLogin // 폼 로그인 사용
-                        .loginPage("/login") // 사용자 리디렉션을 위한 커스텀 로그인 페이지 지정
-                        .permitAll() // 로그인 페이지는 모든 사용자에게 허용
-                        .defaultSuccessUrl("/home", true) // 로그인 성공 후 리디렉션할 URL 지정
-                        .failureUrl("/login?error=true") // 로그인 실패 시 리디렉션할 URL 지정
-                )
+//                .formLogin(formLogin -> formLogin // 폼 로그인 사용
+//                        .loginPage("/login") // 사용자 리디렉션을 위한 커스텀 로그인 페이지 지정
+//                        .permitAll() // 로그인 페이지는 모든 사용자에게 허용
+//                        .defaultSuccessUrl("/home", true) // 로그인 성공 후 리디렉션할 URL 지정
+//                        .failureUrl("/login?error=true") // 로그인 실패 시 리디렉션할 URL 지정
+//                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/api/authenticate","/join/emails/verification-requests"
-                                ,"/join/emails/verifications","/join/submit").permitAll() // Preflight 요청 허용
+                                ,"/join/emails/verifications","/join/submit","/login").permitAll() // Preflight 요청 허용
                         .requestMatchers(HttpMethod.DELETE, "/join/withdraw").permitAll() // DELETE 요청은 인증 필요
                         .requestMatchers("/api/authenticate", "/join/emails/verification-requests"
-                                ,"/join/emails/verifications","/join/submit" , "/login").permitAll() // /api/authenticate 경로에 대해 모든 요청 허용
+                                ,"/join/emails/verifications","/join/submit","/login").permitAll() // /api/authenticate 경로에 대해 모든 요청 허용
                         .anyRequest().authenticated() // 다른 요청은 인증 필요
                 );
 

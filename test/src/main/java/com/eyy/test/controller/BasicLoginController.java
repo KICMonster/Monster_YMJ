@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.eyy.test.dto.JwtTokenDTO;
+import com.eyy.test.dto.LocalLoginRequest;
 import com.eyy.test.dto.UserInfo;
 import com.eyy.test.service.BaiscLoginService;
 
@@ -25,13 +26,9 @@ import lombok.extern.log4j.Log4j2;
 public class BasicLoginController {
 	private final BaiscLoginService baiscLoginService;
 
-//	 @GetMapping("{id}")					//로그인?
-//	    public UserInfo getUserById(@PathVariable("id") Long id) {
-//	        return baiscLoginService.login(id);
-//	    }
 	 @PostMapping("/login")					//로그인?
-	    public JwtTokenDTO getUserById(@PathVariable("id") Long id) {
-	        return baiscLoginService.login(id);
+	    public JwtTokenDTO getUserById(@RequestBody LocalLoginRequest request ) {
+	        return baiscLoginService.login(request);
 	    }
 
 //	    @PostMapping("/join/submit")		//회원가입

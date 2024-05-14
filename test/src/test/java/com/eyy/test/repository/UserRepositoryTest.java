@@ -25,10 +25,10 @@ public class UserRepositoryTest {
 		log.info(memberRepository);
 	}
 
-//	@Test 
+	@Test 
 	public void adduser() {
 		Member member =new Member();
-		member.setEmail("ymj");
+		member.setEmail("dbaudwns24@naver.com");
 		member.setPassword("yuyu1212");
 		member.setName("유씨");
 		member.setBirth("2004-03-30");
@@ -37,7 +37,7 @@ public class UserRepositoryTest {
 		memberRepository.save(member);
 		
 	}
-	@Test
+//	@Test
 	public void finduser() {
 		Long id = 1l;
 		Optional<Member> memberOptional = memberRepository.findById(id);

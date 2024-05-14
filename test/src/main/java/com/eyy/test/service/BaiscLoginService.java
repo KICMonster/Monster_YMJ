@@ -5,18 +5,16 @@ import java.util.Arrays;
 import org.springframework.http.ResponseEntity;
 
 import com.eyy.test.dto.JwtTokenDTO;
+import com.eyy.test.dto.LocalLoginRequest;
 import com.eyy.test.dto.UserInfo;
 import com.eyy.test.entity.Member;
 
 public interface BaiscLoginService {
 	//조회 
 //	UserInfo login(Long id);
-	JwtTokenDTO login(Long id);
+	JwtTokenDTO login(LocalLoginRequest request);
 	
-	//등록
-//	ResponseEntity<String> register(UserInfo dto);
-	JwtTokenDTO register(UserInfo dto);
-	
+
 	//수정
 	void modify(UserInfo dto);
 	
